@@ -107,6 +107,10 @@ import org.jkiss.utils.CommonUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -1764,7 +1768,7 @@ public class ResultSetViewer extends Viewer
 
             statusLabel = new StatusLabel(statusBar, SWT.NONE, this);
             RowData rd = new RowData();
-            rd.width = 30 * fontHeight;
+            rd.width = 50 * fontHeight;
             statusLabel.setLayoutData(rd);
             CSSUtils.setCSSClass(statusLabel, DBStyles.COLORED_BY_CONNECTION_TYPE);
 
@@ -2116,10 +2120,13 @@ public class ResultSetViewer extends Viewer
         }
         long fetchTime = statistics.getFetchTime();
         long totalTime = statistics.getTotalTime();
+        final String startDateTime = DateTimeFormatter
+            .ofLocalizedDateTime(FormatStyle.SHORT)
+            .format(LocalDateTime.ofInstant(Instant.ofEpochMilli(statistics.getEndTime()), TimeZone.getDefault().toZoneId()));
         if (fetchTime <= 0) {
-            return " - " + RuntimeUtils.formatExecutionTime(totalTime);
+            return " - " + RuntimeUtils.formatExecutionTime(totalTime) + ", on " + startDateTime;
         } else {
-            return " - " + RuntimeUtils.formatExecutionTime(statistics.getExecuteTime()) + " (+" + RuntimeUtils.formatExecutionTime(fetchTime) + ")";
+            return " - " + RuntimeUtils.formatExecutionTime(statistics.getExecuteTime()) + " (+" + RuntimeUtils.formatExecutionTime(fetchTime) + "), on " + startDateTime;
         }
     }
 
